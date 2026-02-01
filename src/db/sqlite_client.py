@@ -18,7 +18,7 @@ def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
 
 
 def get_schema(db_path: Path | None = None) -> str:
-    """Return table/column list for the agent (one table: support_tickets)."""
+    """Return table schema with column names and usage hints for the agent."""
     conn = get_connection(db_path)
     try:
         cur = conn.execute(
@@ -27,8 +27,23 @@ def get_schema(db_path: Path | None = None) -> str:
         if cur.fetchone() is None:
             return "Table support_tickets not found."
         cur = conn.execute("PRAGMA table_info(support_tickets)")
-        cols = [row[1] for row in cur.fetchall()]
-        return "Table: support_tickets. Columns: " + ", ".join(cols)
+        rows = cur.fetchall()
+        # row: (cid, name, type, notnull, default, pk)
+        cols = [row[1] for row in rows]
+        # Describe columns for search: which to use for name, email, product, etc.
+        return (
+            "Table: support_tickets\n"
+            "Columns (use these exact names): "
+            + ", ".join(cols)
+            + "\n\n"
+            "Search hints: "
+            "customer_name (text, use LIKE '%value%' for partial name); "
+            "customer_email (text, use = or LIKE for email); "
+            "product_purchased (text, use LIKE '%value%' for product); "
+            "ticket_id, ticket_status, ticket_priority, ticket_type, ticket_subject, ticket_description; "
+            "date_of_purchase, resolution, ticket_channel, customer_age, customer_gender, "
+            "first_response_time, time_to_resolution, customer_satisfaction_rating."
+        )
     finally:
         conn.close()
 

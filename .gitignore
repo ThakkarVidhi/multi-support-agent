@@ -9,3 +9,5 @@ data/raw/*.csv
 .pytest_cache
 .coverage
 htmlcov/
+plan/
+assignment/
