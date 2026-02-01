@@ -35,8 +35,9 @@ def get_client(chroma_path: Path | None = None):
     return _client
 
 
-def ingest_pdfs(directory: Path | str) -> None:
-    """Load PDFs from directory, chunk, embed, add to Chroma collection 'policy_docs'."""
+def ingest_pdfs(directory: Path | str, chroma_path: Path | None = None) -> None:
+    """Load PDFs from directory, chunk, embed, add to Chroma collection 'policy_docs'.
+    Uses sentence-transformers all-MiniLM-L6-v2 (same as search). Re-run clears and re-adds."""
     from pypdf import PdfReader
     from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -45,7 +46,11 @@ def ingest_pdfs(directory: Path | str) -> None:
         logger.warning("Directory %s does not exist", directory)
         return
 
-    client = get_client()
+    client = get_client(chroma_path)
+    try:
+        client.delete_collection(name="policy_docs")
+    except Exception:
+        pass
     collection = client.get_or_create_collection(name="policy_docs", metadata={"description": "Policy PDF chunks"})
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50, separators=["\n\n", "\n", " "])
@@ -88,8 +93,8 @@ def ingest_pdfs(directory: Path | str) -> None:
     logger.info("Ingested %d chunks from %s", len(all_docs), directory)
 
 
-def search(query: str, k: int = 4, chroma_path: Path | None = None) -> str:
-    """Embed query, run similarity search, return concatenated chunk text."""
+def search(query: str, k: int = 3, chroma_path: Path | None = None) -> str:
+    """Embed query, run similarity search, return concatenated chunk text. k=3 for lower latency."""
     client = get_client(chroma_path)
     try:
         collection = client.get_collection(name="policy_docs")
@@ -102,3 +107,16 @@ def search(query: str, k: int = 4, chroma_path: Path | None = None) -> str:
         return ""
     docs = results["documents"][0]
     return "\n\n".join(docs) if docs else ""
+
+
+def warmup(chroma_path: Path | None = None) -> None:
+    """Load embedding model and Chroma client so the first policy query is fast. Call at app startup."""
+    try:
+        _get_embedding_fn()
+        client = get_client(chroma_path)
+        try:
+            client.get_collection(name="policy_docs")
+        except Exception:
+            pass
+    except Exception as e:
+        logger.debug("Vector store warmup skipped or failed: %s", e)
