@@ -127,8 +127,6 @@ flowchart LR
   RetrieverTool --> Chroma
 ```
 
-![High-level architecture daigram](./public/diagrams/high_level_architechture_diagram.png)
-
 ### Detailed request flow (data flow)
 
 ```mermaid
@@ -152,9 +150,6 @@ flowchart TB
   Streamlit --> Display["Display in chat + optional query details"]
 ```
 
-![Data Flow daigram](./public/diagrams/data_flow_daigram.png)
-
-
 ### Agent internal flow (orchestration)
 
 ```mermaid
@@ -173,8 +168,6 @@ flowchart LR
   LLM --> FinalAnswer["Final answer"]
 ```
 
-![Agent Internal Flow](./public/diagrams/agent_internal_flow.png)
-
 ### RAG pipeline (policy documents)
 
 ```mermaid
@@ -192,11 +185,6 @@ flowchart LR
     Chunks --> LLM["LLM summarize"]
   end
 ```
-
-| RAG Ingest | RAG Query |
-|---------|------------------------|
-| ![RAG Query](./public/diagrams/rag_ingest.png) | ![RAG Ingest](./public/diagrams/rag_query.png) |
-
 
 ---
 
