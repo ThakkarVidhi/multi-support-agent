@@ -266,7 +266,7 @@ Below are snapshots of **DataLoom**: the chat UI and the agent/architecture over
 
 **Demo video:** 
 
-![Demo Video]<video src="[https://github.com/ThakkarVidhi/multi-support-agent/blob/main/public/multi_support_agent_demo_video.mp4]" width="600"></video>
+▶️ [Click here to download the demo video](https://github.com/ThakkarVidhi/multi-support-agent/raw/refs/heads/main/public/multi_support_agent_demo_video.mp4)
 
 ---
 
